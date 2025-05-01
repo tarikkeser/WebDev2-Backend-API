@@ -18,7 +18,7 @@ class AuthController extends Controller
     public function register()
     {
         $data = $this->decodePostData(); // Use base controller method to get POST data
-        $this->validateInput(['email', 'password'], $data); // Use base controller validation
+        $this->validateInput(['email', 'password','name','role'], $data); // Use base controller validation
 
         // Check if email already exists
         if ($this->userModel->findByEmail($data['email'])) {
@@ -28,7 +28,7 @@ class AuthController extends Controller
 
         // create user
         try {
-            $this->userModel->create($data['email'], $data['password']);
+            $this->userModel->create($data['email'], $data['password'],$data['name'],$data['role']);
             return ResponseService::Send(['message' => 'User registered successfully']);
         } catch (\Exception $e) {
             var_dump($e);
@@ -39,10 +39,11 @@ class AuthController extends Controller
     public function login()
     {
         // Get and parse the JSON request body using base controller method
+
         $data = $this->decodePostData();
 
         // Validate that required fields (email & password) exist in request
-        $this->validateInput(['email', 'password'], $data);
+        $this->validateInput(['email', 'password',], $data);
 
         // Try to find user with the provided email
         $user = $this->userModel->findByEmail($data['email']);
@@ -61,11 +62,14 @@ class AuthController extends Controller
         ResponseService::Send(['token' => $token]);
     }
 
+
+    // shows information about already authenticated user.
     public function me()
     {
         ResponseService::Send($this->getAuthenticatedUser());
     }
 
+    // generates a JWT token for the user
     private function generateJWT($user)
     {
         $issuedAt = time();
@@ -76,12 +80,14 @@ class AuthController extends Controller
             'exp' => $expire,
             'user' => [
                 'id' => $user['id'],
-                'email' => $user['email']
+                'email' => $user['email'],
+                'name' => $user['name'],
+                'role' => $user['role']
             ]
         ];
-
         return JWT::encode($payload, $_ENV["JWT_SECRET"], 'HS256');
     }
+
 
     public function isMe($id)
     {

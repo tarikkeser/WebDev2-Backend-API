@@ -10,7 +10,6 @@ use Firebase\JWT\Key;
 
 class Controller
 {
-
     // ensures all expected fields are set in data object and sends a bad request response if not
     // used to make sure all expected $_POST fields are at least set, additional validation may still need to be set
     function validateInput($expectedFields, $data)
@@ -24,6 +23,7 @@ class Controller
     }
 
     // gets the post data and returns it as an array
+    // this is used to get the JSON body of a request, which is not automatically parsed by PHP
     function decodePostData()
     {
         try {
