@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Apr 19, 2025 at 10:58 PM
+-- Generation Time: May 05, 2025 at 11:01 PM
 -- Server version: 11.7.2-MariaDB-ubu2404
 -- PHP Version: 8.2.28
 
@@ -56,16 +56,19 @@ CREATE TABLE `dogs` (
 --
 
 INSERT INTO `dogs` (`id`, `owner_id`, `name`, `breed`, `age`, `size`, `photo`) VALUES
-(1, 38, 'Buddy', 'Golden Retriever', 3, 'Large', NULL),
-(2, 38, 'Luna', 'Poodle', 2, 'Medium', NULL),
-(3, 39, 'Max', 'Labrador', 4, 'Large', NULL),
+(1, 38, 'Budd', 'Golden Retriever', 3, 'medium', NULL),
+(2, 38, 'Luna', 'Poodle', 2, 'small', NULL),
+(3, 39, 'Maximwew', 'Labrador', 4, 'medium', NULL),
 (4, 39, 'Bella', 'Beagle', 2, 'Small', NULL),
-(5, 39, 'Charlie', 'Cocker Spaniel', 1, 'Medium', NULL),
 (6, 40, 'Daisy', 'Bulldog', 3, 'Medium', NULL),
 (7, 41, 'Milo', 'Shih Tzu', 2, 'Small', NULL),
 (8, 41, 'Sadie', 'Dachshund', 4, 'Small', NULL),
 (9, 42, 'Rocky', 'Boxer', 5, 'Large', NULL),
-(10, 42, 'Chloe', 'German Shepherd', 3, 'Large', NULL);
+(10, 42, 'Chloe', 'German Shepherd', 3, 'Large', NULL),
+(19, 39, 'Bellarae', 'dog', 12, 'small', NULL),
+(21, 39, 'Charliee', 'Labrador', 6, 'medium', NULL),
+(22, 39, 'Maximwew', '2', 2, 'medium', NULL),
+(23, 38, 'Bella', 'Labrador', 2, 'medium', NULL);
 
 -- --------------------------------------------------------
 
@@ -114,7 +117,8 @@ INSERT INTO `user` (`id`, `name`, `email`, `password`, `role`, `profile_picture`
 (39, 'Emma Lane', 'emma.owner@example.com', '$2y$12$hn/kAspfPq4GWnPjEBiqD.OepA456M8i57zHWeFLwJYbwsmYxHIii', 'owner', NULL, NULL, NULL),
 (40, 'James Harper', 'james.owner@example.com', '$2y$12$vcCIpwBjGhqV1ixjytkZFO2bdJDEU2prPa270M6f8cvuFMYnA94Me', 'owner', NULL, NULL, NULL),
 (41, 'Lily Brooks', 'lily.owner@example.com', '$2y$12$qsA7f4lnAFf0EsVN6vb/wuIziUHv.b07OqTFwsyo6HUa0DcIoCZoa', 'owner', NULL, NULL, NULL),
-(42, 'Elijah Stone', 'elijah.owner@example.com', '$2y$12$xPE3HKqRCl49CSaB02rvJOLU4nqyOD0LyRglog6VBrUdGX.QMrboO', 'owner', NULL, NULL, NULL);
+(42, 'Elijah Stone', 'elijah.owner@example.com', '$2y$12$xPE3HKqRCl49CSaB02rvJOLU4nqyOD0LyRglog6VBrUdGX.QMrboO', 'owner', NULL, NULL, NULL),
+(43, 'Tarik Keser', 'ahmettariknl@gmail.com', '$2y$12$.WPzdcn0mpd9caWj.F/jZODG57RiujRZSg/9xp4o..vZIkX6uhmCW', 'owner', NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -165,7 +169,7 @@ ALTER TABLE `approvedAppointments`
 -- AUTO_INCREMENT for table `dogs`
 --
 ALTER TABLE `dogs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `request`
@@ -177,7 +181,7 @@ ALTER TABLE `request`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- Constraints for dumped tables

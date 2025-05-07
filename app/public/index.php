@@ -11,8 +11,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Services\EnvService;
 use App\Services\ErrorReportingService;
 use App\Services\ResponseService;
-use App\Controllers\ArticleController;
 use App\Controllers\AuthController;
+use App\Controllers\DogController;
+use App\Controllers\WalkerController;
 
 // require vendor libraries
 use Steampixel\Route;
@@ -49,46 +50,43 @@ try {
         $authController->me();
     }, ["get"]);
 
-    // update article by id
-    Route::add('/auth/is-me/([0-9]*)', function ($id) {
-        $authController = new AuthController();
-        $authController->isMe($id);
-    }, 'get');
-
     /**
-     * Article routes
+     * Dog routes
      */
-    // paginated get all articles route: /articles?page=1
-    Route::add('/articles', function () {
-        $articleController = new ArticleController();
-        $articleController->getAll();
-    });
-    // get article by id
-    Route::add('/articles/([a-z-0-9-]*)', function ($id) {
-        $articleController = new ArticleController();
-        $articleController->get($id);
-    });
-    // create article route
-    Route::add('/articles', function () {
-        $articleController = new ArticleController();
-        $articleController->create($_POST);
-    }, ["post"]);
-    // update article by id
-    Route::add('/articles/([0-9]*)', function ($id) {
-        sleep(3); // adding a timeout to demonstrate UI loading state
-        $articleController = new ArticleController();
-        $articleController->update($id);
-    }, 'put');
-    // delete article by id
-    Route::add('/articles/([0-9]*)', function ($id) {
-        $articleController = new ArticleController();
-        $articleController->delete($id);
-    }, 'delete');
-    // generate qr code for article
-    Route::add('/articles/qr-code/([a-z-0-9-]*)', function ($id) {
-        $articleController = new ArticleController();
-        $articleController->getQrCode($id);
-    });
+
+    // get all dogs by owner id
+    Route::add('/dog/owner/([0-9]*)', function ($ownerId) {
+        $dogController = new DogController();
+        $dogController->getDogsByOwner($ownerId);
+    }, "get");
+
+    // get dog by id
+    Route::add('/dog/([0-9]*)', function ($id) {
+        $dogController = new DogController();
+        $dogController->getDog($id);
+    }, "get");
+    // create a new dog
+    Route::add('/dog', function () {
+        $dogController = new DogController();
+        $dogController->createDog();
+    }, "post");
+    // update dog 
+    Route::add('/dog/([0-9]*)', function ($id) {
+        $dogController = new DogController();
+        $dogController->updateDog($id);
+    }, "put");
+    // delete dog
+    Route::add('/dog/([0-9]*)', function ($id) {
+        $dogController = new DogController();
+        $dogController->deleteDog($id);
+    }, "delete");
+
+    //**walkers */
+    // get all walkers
+    Route::add('/walkers', function () {
+        $walkerController = new WalkerController();
+        $walkerController->getAllWalkers();
+    }, "get");
 
     /**
      * 404 route handler

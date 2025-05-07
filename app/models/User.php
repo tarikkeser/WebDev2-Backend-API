@@ -42,4 +42,6 @@ class User extends Model
         $stmt->execute([$id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
+
+    // update user information .This will be implemented for profile section and need to create profile controller.
 }
