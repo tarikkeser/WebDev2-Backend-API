@@ -4,7 +4,7 @@ namespace App\Models;
 
 class User extends Model
 {
-    public function create($email, $password,$name,$role)
+    public function create($email, $password, $name, $role)
     {
         // Validate email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -43,5 +43,21 @@ class User extends Model
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
-    // update user information .This will be implemented for profile section and need to create profile controller.
+
+
+    // get user information by id 
+    public function getUserInfo($id)
+    {
+        $stmt = self::$pdo->prepare("SELECT name,email,password,profile_picture,price,experience FROM user WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+    // get user information by email
+    public function getUserByEmail($email)
+    {
+        $stmt = self::$pdo->prepare("SELECT * FROM user WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }   
+    // update user information will be implemented.
 }

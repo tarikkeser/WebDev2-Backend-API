@@ -14,6 +14,9 @@ use App\Services\ResponseService;
 use App\Controllers\AuthController;
 use App\Controllers\DogController;
 use App\Controllers\WalkerController;
+use App\Controllers\AppointmentController;
+use App\Controllers\RequestController;
+use App\Controllers\ProfileController;  
 
 // require vendor libraries
 use Steampixel\Route;
@@ -87,6 +90,66 @@ try {
         $walkerController = new WalkerController();
         $walkerController->getAllWalkers();
     }, "get");
+
+    //**request routes */
+    // REQUESTS-OWNER
+    // owner : send request to a walker
+    Route::add('/request', function () {
+        $requestController = new RequestController();
+        $requestController->createRequest();
+    }, "post");
+    // owner : get sent requests
+    Route::add('/request/owner', function () {
+        $requestController = new RequestController();
+        $requestController->getRequestsByOwner();
+    }, "get");
+    // owner : cancel request
+    Route::add('/request/([0-9]*)', function ($requestId) {
+        $requestController = new RequestController();
+        $requestController->cancelRequest($requestId);
+    }, "delete");
+    
+    // -- REQUEST-WALKER
+    // walker : get received requests
+    Route::add('/request/walker', function () {
+        $requestController = new RequestController();
+        $requestController->getRequestsByWalker();
+    }, "get");
+    // walker : accept request -- turn request to appointment.
+    Route::add('/request/accept/([0-9]*)', function ($requestId) {
+        $requestController = new RequestController();
+        $requestController->acceptRequest($requestId);
+    }, "post");
+    // walker : reject request
+    Route::add('/request/reject/([0-9]*)', function ($requestId) {
+        $requestController = new RequestController();
+        $requestController->rejectRequest($requestId);
+    }, "post");
+
+
+    /**
+     * Appointment routes
+     */
+    // get all appointments for walker
+    Route::add('/appointments/walker', function () {
+        $appointmentController = new AppointmentController();
+        $appointmentController->getAllAppointmentsForWalker();
+    }, "get");
+    // get all appointments for owner
+    Route::add('/appointments/owner', function () {
+        $appointmentController = new AppointmentController();
+        $appointmentController->getAllAppointmentsForOwner();
+    }, "get");
+    // cancel appointment
+    Route::add('/appointments/([0-9]*)', function ($appointmentId) {
+        $appointmentController = new AppointmentController();
+        $appointmentController->cancelAppointment($appointmentId);
+    }, "delete");
+
+    // PROFILE ROUTES//
+
+
+
 
     /**
      * 404 route handler

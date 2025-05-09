@@ -36,18 +36,110 @@ class RequestController extends Controller
                 $data['end_time']
             );
             if ($result) {
-                ResponseService::send(200, "Request sent successfully");
+                ResponseService::Send(['message' => 'Request sent successfully'], 200);
             } else {
-                ResponseService::send(500, "Failed to send request");
+                ResponseService::Error('Failed to send request', 500);
             }
         } catch (Exception $e) {
-            ResponseService::send(500, "Error: " . $e->getMessage());
+            ResponseService::Error($e->getMessage(), 500);
+        }
+    }
+    // owner: get all send requests
+    public function getRequestsByOwner()
+    {
+
+        $user = $this->getAuthenticatedUser();
+        if ($user->role !== 'owner') {
+            ResponseService::Error('Unauthorized', 403);
+            return;
+        }
+        try {
+            $requests = $this->requestModel->getRequestsByOwner($user->id);
+            ResponseService::Send($requests);
+        } catch (Exception $e) {
+            ResponseService::Error($e->getMessage());
         }
     }
 
     // owner: cancel request
+    public function cancelRequest($requestId)
+    {
+
+        $user = $this->getAuthenticatedUser();
+        if ($user->role !== 'owner') {
+            ResponseService::Error('Unauthorized', 403);
+            return;
+        }
+        
+        try {
+            $result = $this->requestModel->cancelRequest($requestId, $user->id);
+            if ($result) {
+                ResponseService::Send(['message' => 'Request cancelled']);
+            } else {
+                ResponseService::Error('Failed to cancel request');
+            }
+        } catch (Exception $e) {
+            ResponseService::Error($e->getMessage());
+        }
+    }
+
+
+    // walker : get requests
+    public function getRequestsByWalker()
+    {
+        $user = $this->getAuthenticatedUser();
+        if ($user->role !== 'walker') {
+            ResponseService::Error('Unauthorized', 403);
+            return;
+        }
+
+        try {
+            $requests = $this->requestModel->getRequestsByWalker($user->id);
+            ResponseService::Send($requests);
+        } catch (Exception $e) {
+            ResponseService::Error($e->getMessage());
+        }
+    }
 
     // walker : accept request -- turn request to appointment.
-    // walker : reject request 
+    public function acceptRequest($requestId)
+    {
+        $user = $this->getAuthenticatedUser();
+        if ($user->role !== 'walker') {
+            ResponseService::Error('Unauthorized', 403);
+            return;
+        }
 
+        try {
+            $result = $this->requestModel->acceptRequest($requestId);
+            if ($result) {
+                ResponseService::Send(['message' => 'Request accepted']);
+            } else {
+                ResponseService::Error('Failed to accept request');
+            }
+        } catch (Exception $e) {
+            ResponseService::Error($e->getMessage());
+        }
+    }
+
+    // walker : reject request 
+    public function rejectRequest($requestId)
+    {
+        $user = $this->getAuthenticatedUser();
+        if ($user->role !== 'walker') {
+            ResponseService::Error('Unauthorized', 403);
+            return;
+        }
+
+        try {
+            $result = $this->requestModel->rejectRequest($requestId, $user->id);
+            if ($result) {
+                ResponseService::Send(['message' => 'Request rejected']);
+            } else {
+                ResponseService::Error('Failed to reject request');
+            }
+        } catch (Exception $e) {
+            ResponseService::Error($e->getMessage());
+        }
+    }
 }

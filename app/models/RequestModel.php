@@ -13,17 +13,21 @@ class RequestModel extends Model
         parent::__construct();
     }
 
+    // OWNER REQUEST TRANSACTIONS
+
     // Owner: send request to a walker
-    public function createRequest($dogId,$walkerId,$ownerId,$startTime,$endTime){
-        $stmt=self::$pdo->prepare("INSERT INTO request (dog_id, walker_id, owner_id, start_time, end_time, status, created_at) 
+    public function createRequest($dogId, $walkerId, $ownerId, $startTime, $endTime)
+    {
+        $stmt = self::$pdo->prepare("INSERT INTO request (dog_id, walker_id, owner_id, start_time, end_time, status, created_at) 
         VALUES (?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP);");
         return $stmt->execute([$dogId, $walkerId, $ownerId, $startTime, $endTime]);
     }
-    
+
     // owner : get sent requests 
-    public function getRequestsByOwner($ownerId) {
+    public function getRequestsByOwner($ownerId)
+    {
         $sql = "SELECT 
-                request.*, 
+                request.status, 
                 dogs.name as dog_name, 
                 user.name as walker_name,
                 user.price as walker_price,
@@ -33,17 +37,27 @@ class RequestModel extends Model
                 FROM request 
                 JOIN dogs ON request.dog_id = dogs.id
                 JOIN user ON request.walker_id = user.id 
-                WHERE request.owner_id = ?   --/ ? is a placeholder for the owner_id 
+                WHERE request.owner_id = ?  
                 ORDER BY request.created_at DESC";
-                
+
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute([$ownerId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+      // owner: cancel -delete- request
+      public function cancelRequest($requestId)
+      {
+          $stmt = self::$pdo->prepare("DELETE FROM request WHERE id = ?");
+          return $stmt->execute([$requestId]);
+      }
+
+    // WALKER REQUEST TRANSACTIONS
+
     // walker : get received requests by walker
-    public function getRequestsByWalker($walkerId) {
+    public function getRequestsByWalker($walkerId)
+    {
         $sql = "SELECT 
-                request.*, 
+                request.status,
                 dogs.name as dog_name, 
                 dogs.age as dog_age,
                 dogs.breed as dog_breed,
@@ -57,78 +71,77 @@ class RequestModel extends Model
                 JOIN user ON request.owner_id = user.id 
                 WHERE request.walker_id = ?
                 ORDER BY request.created_at DESC";
-                
+
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute([$walkerId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // walker: accept request
-    public function acceptRequest($requestId) {
-        try{
-            self::$pdo->beginTransaction();
-            // get request details
-            $stmt = self::$pdo->prepare("SELECT * FROM request WHERE id = ? AND status = 'pending'");
-            $stmt->execute([$requestId]);
-            $request = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$request) {
-                return false; // request not found or already accepted
-            }
+    public function acceptRequest($requestId)
+    {
+        self::$pdo->beginTransaction();
+        // get request details
+        $stmt = self::$pdo->prepare("SELECT * FROM request WHERE id = ? AND status = 'pending'");
+        $stmt->execute([$requestId]);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$request) {
+            self::$pdo->rollBack();
+            return false; // request not found or already accepted.
+            // this is important otherwise 
+            // the appointment can be deleted in the request section
+        }
 
-            // update request status
-            $stmt = self::$pdo->prepare("UPDATE request SET status = 'accepted' WHERE id = ?");
-            return $stmt->execute([$requestId]);
-    
-            // create appointment record
-            $stmt = self::$pdo->prepare("INSERT INTO   approvedAppointments 
+        // Update request status to accepted.
+        $updateStmt = self::$pdo->prepare("UPDATE request SET status = 'accepted' WHERE id = ?");
+        $updateResult = $updateStmt->execute([$requestId]);
+        if (!$updateResult) {
+            self::$pdo->rollBack();
+            return false;
+        }
+
+        // create appointment record
+        $insertStmt = self::$pdo->prepare("INSERT INTO   approvedAppointments 
             (request_id, start_time, end_time, dog_id, created_at) 
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)");
-            return $stmt->execute([$requestId, $startTime, $endTime, $dogId]);
-        }
-        catch (Exception $e) {
+        $insertResult = $insertStmt->execute([
+            $requestId,
+            $request['start_time'],
+            $request['end_time'],
+            $request['dog_id']
+        ]);
+        if (!$insertResult) {
             self::$pdo->rollBack();
-            return $e->getMessage('Error occurred while accepting the request');
+            return false; // failed to create appointment record
         }
+
+        // commit transaction
+        self::$pdo->commit();
+        return true; // request accepted and appointment created successfully
     }
 
-    //walker: reject request
-    public function rejectRequest($requestId) {
-        try{
-            self::$pdo->beginTransaction();
-            // get request details
-            $stmt = self::$pdo->prepare("SELECT * FROM request WHERE id = ? AND status = 'pending'");
-            $stmt->execute([$requestId]);
-            $request = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$request) {
-                return false; // request not found or already accepted
-            }
-            // update request status
-            $stmt = self::$pdo->prepare("UPDATE request SET status = 'rejected' WHERE id = ?");
-            return $stmt->execute([$requestId]);
+    // walker: reject request
+    public function rejectRequest($requestId)
+    {
+        self::$pdo->beginTransaction();
+        // get request details
+        $stmt = self::$pdo->prepare("SELECT * FROM request WHERE id = ? AND status = 'pending'");
+        $stmt->execute([$requestId]);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$request) {
+            return false; // request not found or already accepted
         }
-        catch (Exception $e) {
+        // Update request status to rejected.
+        $updateStmt = self::$pdo->prepare("UPDATE request SET status = 'rejected' WHERE id = ?");
+        $updateResult = $updateStmt->execute([$requestId]);
+        if (!$updateResult) {
             self::$pdo->rollBack();
-            return $e->getMessage('Error occurred while rejecting the request');
+            return false; // failed to update request status
         }
+        // commit transaction
+        self::$pdo->commit();
+        return true; // request rejected successfully
+
     }
-    // owner: cancel request
-    public function cancelRequest($requestId) {
-        try{
-            self::$pdo->beginTransaction();
-            // get request details
-            $stmt = self::$pdo->prepare("SELECT * FROM request WHERE id = ? AND status = 'pending'");
-            $stmt->execute([$requestId]);
-            $request = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$request) {
-                return false; // request not found or already accepted
-            }
-            // update request status
-            $stmt = self::$pdo->prepare("UPDATE request SET status = 'canceled' WHERE id = ?");
-            return $stmt->execute([$requestId]);
-        }
-        catch (Exception $e) {
-            self::$pdo->rollBack();
-            return $e->getMessage('Error occurred while canceling the request');
-        }
-    }
+  
 }

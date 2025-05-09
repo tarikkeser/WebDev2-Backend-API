@@ -59,6 +59,7 @@ class DogController extends Controller
         
     }
 
+    // check update. there is no image in the update.
     public function updateDog($id)
     {
         $dog = $this->dogModel->getDog($id);
