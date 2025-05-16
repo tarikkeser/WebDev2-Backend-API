@@ -7,7 +7,6 @@ use PDO;
 
 class RequestModel extends Model
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -27,6 +26,7 @@ class RequestModel extends Model
     public function getRequestsByOwner($ownerId)
     {
         $sql = "SELECT 
+                request.id,
                 request.status, 
                 dogs.name as dog_name, 
                 user.name as walker_name,
@@ -57,6 +57,7 @@ class RequestModel extends Model
     public function getRequestsByWalker($walkerId)
     {
         $sql = "SELECT 
+                request.id,
                 request.status,
                 dogs.name as dog_name, 
                 dogs.age as dog_age,

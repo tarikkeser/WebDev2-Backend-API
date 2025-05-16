@@ -78,7 +78,7 @@ try {
         $dogController = new DogController();
         $dogController->updateDog($id);
     }, "put");
-    // delete dog
+    // delete  dog
     Route::add('/dog/([0-9]*)', function ($id) {
         $dogController = new DogController();
         $dogController->deleteDog($id);

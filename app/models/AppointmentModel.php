@@ -16,6 +16,7 @@ class AppointmentModel extends Model
     public function getAppointmentsByWalker($walkerId)
     {
         $sql = "SELECT 
+        a.id as appointment_id,
         d.name as dog_name,
         u.name as owner_name,
         DATE_FORMAT(a.start_time, '%Y-%m-%d %H:%i') as formatted_start_time,
@@ -35,6 +36,7 @@ class AppointmentModel extends Model
     public function getAppointmentsByOwner($ownerId)
     {
         $sql = "SELECT 
+        a.id as appointment_id,
         d.name as dog_name,
         u.name as walker_name,
         DATE_FORMAT(a.start_time, '%Y-%m-%d %H:%i') as formatted_start_time,
