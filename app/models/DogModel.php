@@ -36,7 +36,7 @@ class DogModel extends Model
             "breed" => $inputData["breed"],
             "age" => $inputData["age"],
             "size" => $inputData["size"],
-            "photo" => $inputData["image"] ?? null,
+            "photo" => $inputData["photo"] ?? null,
             "owner_id" => $inputData["owner_id"]
         ];
         $query = "INSERT INTO dogs (name, breed, age, size, photo, owner_id) VALUES (:name, :breed,:age, :size, :photo , :owner_id)";
@@ -55,7 +55,7 @@ class DogModel extends Model
             "breed" => $data["breed"],
             "age" => $data["age"],
             "size" => $data["size"],
-            "photo" => $data["image"] ?? null, 
+            "photo" => $data["photo"] ?? null, 
         ];
 
         $query = "UPDATE dogs SET 

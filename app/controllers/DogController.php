@@ -45,7 +45,7 @@ class DogController extends Controller
         $this->validateInput(['name', 'breed', 'age', 'size'], $data);
 
         $data['owner_id'] = $user->id;
-        $data['photo'] = $data['image'] ?? null;
+        $data['photo'] = $data['photo'] ?? null;
 
         $newDog = $this->dogModel->createDog($data);
 
@@ -73,6 +73,7 @@ class DogController extends Controller
         // decode means to convert the JSON string into a PHP array
         $data = $this->decodePostData();
         $this->validateInput(['name', 'breed', 'age', 'size'], $data);
+        $data['photo'] = $data['photo'] ?? $dog['photo'];
 
         $updatedDog = $this->dogModel->updateDog($id, $data);
         ResponseService::Send($updatedDog);

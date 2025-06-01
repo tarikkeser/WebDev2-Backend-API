@@ -147,6 +147,16 @@ try {
     }, "delete");
 
     // PROFILE ROUTES//
+    // get profile information
+    Route::add('/profile/([0-9]*)', function ($id) {
+        $profileController = new ProfileController();
+        $profileController->getProfile($id);
+    }, "get");
+    // update profile information
+    Route::add('/profile/([0-9]*)', function ($id) {
+        $profileController = new ProfileController();
+        $profileController->updateProfile($id);
+    }, "put");
 
 
 

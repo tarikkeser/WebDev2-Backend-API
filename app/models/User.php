@@ -48,7 +48,7 @@ class User extends Model
     // get user information by id 
     public function getUserInfo($id)
     {
-        $stmt = self::$pdo->prepare("SELECT name,email,password,profile_picture,price,experience FROM user WHERE id = ?");
+        $stmt = self::$pdo->prepare("SELECT name,email,profile_picture,price,experience FROM user WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
@@ -58,6 +58,32 @@ class User extends Model
         $stmt = self::$pdo->prepare("SELECT * FROM user WHERE email = ?");
         $stmt->execute([$email]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
-    }   
+    }
     // update user information will be implemented.
+    public function updateUser($id, $fields)
+    {
+
+        $allowedFields = ['name', 'email', 'password', 'profile_picture', 'price', 'experience'];
+        $setParts = [];
+        $values = [];
+
+        foreach ($fields as $key => $value) {
+            if (in_array($key, $allowedFields)) {
+                if ($key === 'password') {
+                    $value = password_hash($value, PASSWORD_DEFAULT);
+                }
+                $setParts[] = "$key = ?";
+                $values[] = $value;
+            }
+        }
+        if (empty($setParts)) {
+            throw new \InvalidArgumentException('No valid fields to update');
+        }
+        $values[] = $id;
+        $sql = "UPDATE user SET " . implode(', ', $setParts) . " WHERE id = ?";
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute($values);
+
+        return $this->getUserInfo($id);
+    }
 }
