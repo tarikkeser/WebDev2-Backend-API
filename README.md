@@ -1,19 +1,12 @@
-# PHP Web Development Boilerplate
-
 ## About
+The Dog Walker Web Application is a platform designed to facilitate interaction between dog owners and dog walkers. It allows owners to manage their pets, schedule appointments, and manage their profiles, while walkers can accept appointment requests and manage their own profiles. The system will provide both Owner and Walker roles, each with its own set of features and functionalities.
 
-This repo contains some starter code for new PHP API projects.
+## Built With
+This part of the project focuses on the backend implementation using RESTAPI practices. It is designed to be run in a Docker environment. The project follows the Model-View-Controller (MVC) architecture. For the database, it uses MySQL (MariaDB) and includes PHPMyAdmin for database management.
 
-What's included:
 
-- Docker setup including:
-  - PHP interpreter
-  - NGINX server
-  - MySQL (MariaDB) database
-  - PHP MyAdmin
-- A directory structure organized around the MVC pattern
-- Composer
-- Autoload setup
+## Getting Started
+Run the SQL query in the `sql` folder to create the database and tables in PHPMyAdmin. The SQL file is named `developmentdb.sql`.
 
 ## Usage
 
@@ -36,21 +29,3 @@ Or run:
 docker compose down
 ```
 
-## Composer commands
-
-- to run composer commands, `docker compose run php composer [arguments]`
-- i.e. to install the QR code library (already done): `docker compose run php composer require chillerlan/php-qrcode`
-
-## Important files
-
-- The entry point for the application is `app/public/index.php`. Start there and trace the control flow through the routes, controllers and models
-- `insomnia_article_collection.json` can be imported into [Insomnia](https://insomnia.rest/) for API testing
-
-## Code Architecture
-
-The code follows an MVC pattern. Here is an outline of the code structure:
-
-- `public/index.php` - the main entry point of the application with initialization and routes.
-- `controllers` - responsible for logic
-- `models` - responsible for database CRUD
-- `services` - various self contained services. These are primarily used by the controllers and can contain logic for small local services or for interacting with external services (mail send, external apis, etc.).
