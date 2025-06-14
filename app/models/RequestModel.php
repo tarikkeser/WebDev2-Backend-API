@@ -15,30 +15,30 @@ class RequestModel extends Model
     // OWNER REQUEST TRANSACTIONS
 
     // Owner: send request to a walker
-public function createRequest($dogId, $walkerId, $ownerId, $startTime, $endTime)
-{
-    
-    $sql = "
+    public function createRequest($dogId, $walkerId, $ownerId, $startTime, $endTime)
+    {
+
+        $sql = "
         SELECT 1 FROM approvedAppointments
         WHERE dog_id = ?
           AND (start_time < ? AND end_time > ?)
         LIMIT 1
     ";
-    $params = [
-        $dogId,
-        $endTime, 
-        $startTime 
-    ];
-    $stmt = self::$pdo->prepare($sql);
-    $stmt->execute($params);
-    if ($stmt->fetch()) {
-       return false; // There is an existing appointment that conflicts with the requested time.
-    }
-    
-    $stmt = self::$pdo->prepare("INSERT INTO request (dog_id, walker_id, owner_id, start_time, end_time, status, created_at) 
+        $params = [
+            $dogId,
+            $endTime,
+            $startTime
+        ];
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute($params);
+        if ($stmt->fetch()) {
+            return false; // There is an existing appointment that conflicts with the requested time.
+        }
+
+        $stmt = self::$pdo->prepare("INSERT INTO request (dog_id, walker_id, owner_id, start_time, end_time, status, created_at) 
     VALUES (?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP);");
-    return $stmt->execute([$dogId, $walkerId, $ownerId, $startTime, $endTime]);
-}
+        return $stmt->execute([$dogId, $walkerId, $ownerId, $startTime, $endTime]);
+    }
 
     // owner : get sent requests 
     public function getRequestsByOwner($ownerId)
@@ -62,12 +62,12 @@ public function createRequest($dogId, $walkerId, $ownerId, $startTime, $endTime)
         $stmt->execute([$ownerId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-      // owner: cancel -delete- request
-      public function cancelRequest($requestId)
-      {
-          $stmt = self::$pdo->prepare("DELETE FROM request WHERE id = ?");
-          return $stmt->execute([$requestId]);
-      }
+    // owner: cancel -delete- request
+    public function cancelRequest($requestId)
+    {
+        $stmt = self::$pdo->prepare("DELETE FROM request WHERE id = ?");
+        return $stmt->execute([$requestId]);
+    }
 
     // WALKER REQUEST TRANSACTIONS
 
@@ -108,22 +108,39 @@ public function createRequest($dogId, $walkerId, $ownerId, $startTime, $endTime)
             self::$pdo->rollBack();
             return false;
         }
-        // Check for conflicts with existing appointments.
-        $conflictStmt = self::$pdo->prepare("
-        SELECT 1 FROM approvedAppointments
-        WHERE dog_id = ?
-        AND (start_time < ? AND end_time > ?)
-        LIMIT 1
-    ");
-    $conflictStmt->execute([
-        $request['dog_id'],
-        $request['end_time'],
-        $request['start_time']
-    ]);
-    if ($conflictStmt->fetch()) {
-        self::$pdo->rollBack();
-        return false;
-    }
+        // conflict check for dogs
+        $dogConflictStmt = self::$pdo->prepare("
+    SELECT 1 FROM approvedAppointments
+    WHERE dog_id = ?
+      AND (start_time < ? AND end_time > ?)
+    LIMIT 1
+");
+        $dogConflictStmt->execute([
+            $request['dog_id'],
+            $request['end_time'],
+            $request['start_time']
+        ]);
+        if ($dogConflictStmt->fetch()) {
+            self::$pdo->rollBack();
+            return false;
+        }
+
+        // conflict check for walkers
+        $walkerConflictStmt = self::$pdo->prepare("
+    SELECT 1 FROM approvedAppointments a
+    JOIN request r ON a.request_id = r.id
+    WHERE r.walker_id = ?
+      AND (a.start_time < ? AND a.end_time > ?)
+    LIMIT 1");
+        $walkerConflictStmt->execute([
+            $request['walker_id'],
+            $request['end_time'],
+            $request['start_time']
+        ]);
+        if ($walkerConflictStmt->fetch()) {
+            self::$pdo->rollBack();
+            return false;
+        }
 
         // Update request status to accepted.
         $updateStmt = self::$pdo->prepare("UPDATE request SET status = 'accepted' WHERE id = ?");
@@ -132,18 +149,18 @@ public function createRequest($dogId, $walkerId, $ownerId, $startTime, $endTime)
             self::$pdo->rollBack();
             return false;
         }
-       // Remove a request if another request for the same dog overlaps with the accepted request.
+        // Remove a request if another request for the same dog overlaps with the accepted request.
         $rejectStmt = self::$pdo->prepare("
         UPDATE request SET status = 'rejected'
         WHERE dog_id = ? AND id != ? AND status = 'pending'
           AND (start_time < ? AND end_time > ?)
     ");
-    $rejectStmt->execute([
-        $request['dog_id'],
-        $requestId,
-        $request['end_time'],
-        $request['start_time']
-    ]);
+        $rejectStmt->execute([
+            $request['dog_id'],
+            $requestId,
+            $request['end_time'],
+            $request['start_time']
+        ]);
 
         // create appointment record
         $insertStmt = self::$pdo->prepare("INSERT INTO   approvedAppointments 
@@ -188,5 +205,4 @@ public function createRequest($dogId, $walkerId, $ownerId, $startTime, $endTime)
         return true; // request rejected successfully
 
     }
-  
 }

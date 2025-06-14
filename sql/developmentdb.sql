@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jun 01, 2025 at 03:25 PM
--- Server version: 11.7.2-MariaDB-ubu2404
+-- Generation Time: Jun 14, 2025 at 03:25 PM
+-- Server version: 11.8.2-MariaDB-ubu2404
 -- PHP Version: 8.2.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -178,7 +178,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `approvedAppointments`
 --
 ALTER TABLE `approvedAppointments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `dogs`
@@ -190,7 +190,7 @@ ALTER TABLE `dogs`
 -- AUTO_INCREMENT for table `request`
 --
 ALTER TABLE `request`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `user`
