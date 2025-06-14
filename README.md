@@ -1,3 +1,7 @@
+# Dog Walker Web Application - Backend API
+GitHub Repo Link: 'https://github.com/tarikkeser/WebDev2-Backend-API'
+
+
 ## About
 The Dog Walker Web Application is a platform designed to facilitate interaction between dog owners and dog walkers. It allows owners to manage their pets, schedule appointments, and manage their profiles, while walkers can accept appointment requests and manage their own profiles. The system will provide both Owner and Walker roles, each with its own set of features and functionalities.
 
